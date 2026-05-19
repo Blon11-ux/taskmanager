@@ -1,30 +1,28 @@
-#  Portfolio Project: Taskmanager
+#  ポートフォリオプロジェクト: Taskmanager (タスクマネージャー)
 
-A modern, responsive task management application designed to streamline workflows and track daily productivity. 
+日常のワークフローを効率化し、生産性を追跡するために設計された、モダンでレスポンシブなタスク管理アプリケーションです。
 
-** [live demo link](https://localhost:3000)**
+**[ライブデモを見る](https://your-live-project-link.vercel.app)** ---
 
-**🔗 [Live Demo Link](https://your-live-project-link.vercel.app)**
+## プロジェクト概要
 
-##  Project Overview
+このプロジェクトは、**React**における状態管理（State Management）と、**Next.js**のルーティング機能を深く理解するために開発しました。クリーンでモダンなデザインを維持しながら、リアルタイムのタスク更新を効率的に処理できる、直感的で使いやすいUIの実現を目指しました。
 
-I built this project to master state management in **React** and the routing capabilities of **Next.js**. The goal was to create a highly intuitive user interface that handles real-time task updates efficiently while maintaining a clean, modern design.
-
-### Key Features
-* **Dynamic Task Filtering:** Sort tasks instantly by 'To-Do', 'In Progress', and 'Completed'.
-* **Persistent Storage:** Tasks are saved automatically using browser storage so users don't lose data on page refresh.
-* **Responsive UI:** Fully optimized for seamless use on mobile, tablet, and desktop screens.
+### 主な機能
+* **動的なタスクフィルター:** 「未完了」「進行中」「完了」のステータスごとに、タスクを瞬時に並び替えることができます。
+* **データの永続化:** ブラウザのローカルストレージ（LocalStorage）を利用してタスクを自動保存するため、ページをリロードしてもデータが消えません。
+* **レスポンシブ対応 UI:** スマートフォン、タブレット、デスクトップのどの画面サイズからでも快適に操作できるよう完全に最適化されています。
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## 🛠️ 技術スタックと構成
 
-* **Frontend:** React, Next.js (App Router)
-* **Styling:** CSS Modules / Tailwind CSS *(choose which one you used)*
-* **State Management:** React Hooks (`useState`, `useEffect`)
+* **フロントエンド:** React, Next.js (App Router)
+* **スタイリング:** CSS Modules / Tailwind CSS *(※実際に使用した方を残してください)*
+* **状態管理:** React Hooks (`useState`, `useEffect`)
 
 ```text
-Project Structure Highlights:
-├── components/     # Reusable UI elements (TaskCard, Sidebar, etc.)
-├── context/        # Global state logic
-└── app/            # Next.js pages and layout configuration
+主なプロジェクト構造:
+├── components/     # 再利用可能なUIコンポーネント (TaskCard, Sidebar など)
+├── context/        # グローバルな状態管理ロジック
+└── app/            # Next.js のページおよびレイアウト設定
