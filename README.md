@@ -1,36 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+#  Portfolio Project: Taskmanager
 
-## Getting Started
+A modern, responsive task management application designed to streamline workflows and track daily productivity. 
 
-First, run the development server:
+**🔗 [Live Demo Link](https://your-live-project-link.vercel.app)**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+##  Project Overview
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+I built this project to master state management in **React** and the routing capabilities of **Next.js**. The goal was to create a highly intuitive user interface that handles real-time task updates efficiently while maintaining a clean, modern design.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Key Features
+* **Dynamic Task Filtering:** Sort tasks instantly by 'To-Do', 'In Progress', and 'Completed'.
+* **Persistent Storage:** Tasks are saved automatically using browser storage so users don't lose data on page refresh.
+* **Responsive UI:** Fully optimized for seamless use on mobile, tablet, and desktop screens.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🛠️ Tech Stack & Architecture
 
-To learn more about Next.js, take a look at the following resources:
+* **Frontend:** React, Next.js (App Router)
+* **Styling:** CSS Modules / Tailwind CSS *(choose which one you used)*
+* **State Management:** React Hooks (`useState`, `useEffect`)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+Project Structure Highlights:
+├── components/     # Reusable UI elements (TaskCard, Sidebar, etc.)
+├── context/        # Global state logic
+└── app/            # Next.js pages and layout configuration
