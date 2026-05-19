@@ -1,5 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "./globals.css"; // Pointing cleanly to your plural globals file!
 import Header from "./component/header"; 
 import Footer from "./component/footer";
 
@@ -13,21 +13,28 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// We removed "type Metadata" here
 export const metadata = {
   title: "My Task Manager",
   description: "Built with Next.js and MongoDB",
 };
 
-// We removed the ": Readonly" and ": React.ReactNode" parts here
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-      <body style={{ margin: 0, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      {/* 🎯 FIXED: Forced dark mode background base to eliminate the white bottom box */}
+      <body style={{ 
+        margin: 0, 
+        display: 'flex', 
+        flexDirection: 'column', 
+        minHeight: '100vh',
+        backgroundColor: '#0a0a0a', 
+        color: '#ededed' 
+      }}>
         
         <Header />
         
-        <main style={{ flex: 1 }}>
+        {/* Pushes your footer perfectly to the bottom edge of the browser viewport */}
+        <main style={{ flex: 1, width: '100%' }}>
           {children}
         </main>
         

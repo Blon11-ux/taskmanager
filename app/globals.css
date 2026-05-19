@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,15 +12,355 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* 🎯 FIXED: Let the body stretch full-width naturally */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 🎯 FIXED: Central Dashboard Content Alignment Wrapper */
+.task-container {
+  padding: 40px 20px;
+  width: 100%;
+  max-width: 550px;
+  margin: 0 auto;       /* This automatically centers the main container box */
+  color: #ffffff;
+  flex: 1;              /* Pushes the footer down to the very bottom of the screen */
+}
+
+.task-title {
+  color: #ffffff;
+  margin-bottom: 24px;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.task-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.task-input {
+  flex: 1;
+  padding: 12px;
+  color: #000000;
+  background-color: #ffffff;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.task-button {
+  padding: 12px 24px;
+  cursor: pointer;
+  background-color: #0070f3;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 16px;
+  transition: opacity 0.2s;
+}
+
+.task-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.task-error {
+  color: #ff4d4d;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.task-subtitle {
+  color: #ffffff;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+}
+
+.task-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.task-item {
+  padding: 14px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border-left: 5px solid #0070f3;
+  font-size: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.task-empty {
+  color: #aaaaaa;
+}
+
+/* Layout wrapper inside each task line item */
+.task-item-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 15px;
+}
+
+/* Status Select Badge Base Container */
+.status-select-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.25s ease;
+  display: inline-block;
+  
+  /* Overrides Tailwind Preflight to make the element fully interactive */
+  appearance: select !important;
+  -webkit-appearance: select !important;
+  -moz-appearance: select !important;
+}
+
+.status-select-badge option {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+/* Hover effects for interacting with badges */
+.status-select-badge:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.15);
+}
+
+/* Delete Action Button styling */
+.delete-btn {
+  background: none;
+  border: 1px solid #ff4d4d;
+  color: #ff4d4d;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+  background-color: #ff4d4d;
+  color: #ffffff;
+}
+/* ==========================================================================
+   🎯 DYNAMIC STATUS BADGE STATES (Add to the bottom of globals.css)
+   ========================================================================== */
+
+/* ❌ NOT DONE STATE: Vibrant Translucent Crimson Red */
+.status-not-done {
+  background-color: rgba(255, 77, 77, 0.12) !important;
+  color: #ff4d4d !important;
+  border: 1px solid rgba(255, 77, 77, 0.4) !important;
+  box-shadow: 0 0 10px rgba(255, 77, 77, 0.05);
+}
+.status-not-done:focus {
+  box-shadow: 0 0 0 2px rgba(255, 77, 77, 0.4);
+}
+
+/* ⏳ IN PROGRESS STATE: Glowy Cyber Amber Orange */
+.status-in-progress {
+  background-color: rgba(245, 166, 35, 0.12) !important;
+  color: #f5a623 !important;
+  border: 1px solid rgba(245, 166, 35, 0.4) !important;
+  box-shadow: 0 0 10px rgba(245, 166, 35, 0.05);
+}
+.status-in-progress:focus {
+  box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.4);
+}
+
+/* ✅ DONE STATE: Electric Neon Emerald Green */
+.status-done {
+  background-color: rgba(0, 255, 102, 0.12) !important;
+  color: #00ff66 !important;
+  border: 1px solid rgba(0, 255, 102, 0.4) !important;
+  box-shadow: 0 0 10px rgba(0, 255, 102, 0.05);
+}
+.status-done:focus {
+  box-shadow: 0 0 0 2px rgba(0, 255, 102, 0.4);
+}
+
+/* 🧼 BONUS: Dropdown options visual cleanup inside the picker */
+.status-select-badge option {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  padding: 8px;
+}
+
+/* ==========================================================================
+   📊 ANALYTICS AND FILTER BAR ELEMENTS
+   ========================================================================== */
+
+/* Layout frame for counter cards */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.metric-card {
+  background-color: #161616;
+  padding: 12px;
+  border-radius: 6px;
+  text-align: center;
+  border: 1px solid #222;
+}
+
+.metric-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.metric-number {
+  margin: 5px 0 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Specific Card Labels and Card Accent Borders */
+.label-all { color: #aaaaaa; }
+.label-todo { color: #ff4d4d; }
+.label-active { color: #f5a623; }
+.label-done { color: #00ff66; }
+
+.text-todo { color: #ff4d4d; }
+.text-active { color: #f5a623; }
+.text-done { color: #00ff66; }
+
+/* Filter Container row */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+/* Individual Filter navigation options buttons */
+.filter-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  border: 1px solid #333;
+  background-color: #111;
+  color: #aaaaaa;
+  text-transform: capitalize;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+  background-color: #222;
+  color: #ffffff;
+}
+
+/* Active Highlight state style */
+.filter-active {
+  background-color: #0070f3 !important;
+  color: #ffffff !important;
+  border-color: #0070f3 !important;
+}
+
+/* Core task title text dynamic variables */
+.task-text-active {
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+.task-text-done {
+  flex: 1;
+  text-decoration: line-through;
+  opacity: 0.4;
+  transition: all 0.3s ease;
+}
+
+/* ==========================================================================
+   📅 CALENDAR AND DUE DATE STYLES 
+   ========================================================================== */
+
+/* Calendar block input style */
+.task-date-input {
+  padding: 12px;
+  background-color: #ffffff;
+  color: #000000;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+}
+
+/* ==========================================================================
+   📅 FIXED: CALENDAR INPUT OVERRIDES FOR TAILWIND v4 DARK MODE
+   ========================================================================== */
+
+.task-date-input {
+  padding: 12px;
+  background-color: #1a1a1a !important; /* Matches your dark task card theme */
+  color: #ffffff !important;            /* 🎯 FIX: Forces text to be visible in dark mode */
+  border: 1px solid #333 !important;    /* Clean, minimal borders */
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+  min-width: 150px;
+  color-scheme: dark;                  /* 🎯 FIX: Forces the browser's popup calendar menu into dark mode */
+}
+
+/* Make sure the text looks crisp and handles spacing */
+.task-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  align-items: flex-start;              /* Breaks row-centering constraints */
+}
+
+/* Safe standard date badge text styling */
+.task-date-badge {
+  font-size: 12px;
+  color: #888888;
+  font-weight: 500;
+  display: block;
+}
+
+/* ⚠️ Overdue critical alert text */
+.date-overdue {
+  color: #ff4d4d !important;
+  font-weight: bold;
+}
+.date-overdue {
+  color: #ff4d4d !important;
+  font-weight: bold;
+  animation: pulse-border 2s infinite ease-in-out;
+}
+
+/* Ensure the native browser calendar icon icon looks clean */
+.task-date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0); /* Adjust if you want a white icon instead */
 }

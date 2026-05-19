@@ -1,19 +1,39 @@
+// app/utils/schemaModels.js
 import mongoose from "mongoose";
 
-// 1. User Schema
-const userSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String, required: true }
 });
 
-// 2. Task Schema
-const taskSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-});
+const TaskSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    status: { 
+      type: String, 
+      default: "not done", 
+      enum: ["not done", "in progress", "done"] 
+    },
+    userId: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "User", 
+      required: true 
+    },
+    
+    // 🎯 FIX: Add this line so MongoDB saves your deadlines!
+    dueDate: { type: String, default: null }
+  },
+  { timestamps: true }
+);
 
-// Export them clearly as separate constants
-const User = mongoose.models.User || mongoose.model("User", userSchema);
-const Task = mongoose.models.Task || mongoose.model("Task", taskSchema);
+// app/utils/schemaModels.js
 
-export { User, Task };
+// ... keep your UserSchema and TaskSchema exactly as they are ...
+
+// 🎯 FIX: Force Mongoose to delete the old cached model and re-compile with the new schema!
+if (mongoose.models.Task) {
+  delete mongoose.models.Task;
+}
+
+export const User = mongoose.models.User || mongoose.model("User", UserSchema);
+export const Task = mongoose.model("Task", TaskSchema);
