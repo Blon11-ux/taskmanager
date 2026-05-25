@@ -12,7 +12,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* 🎯 FIXED: Let the body stretch full-width naturally */
 body {
   background: var(--background);
   color: var(--foreground);
@@ -24,14 +23,13 @@ body {
   flex-direction: column;
 }
 
-/* 🎯 FIXED: Central Dashboard Content Alignment Wrapper */
 .task-container {
   padding: 40px 20px;
   width: 100%;
   max-width: 550px;
-  margin: 0 auto;       /* This automatically centers the main container box */
+  margin: 0 auto;
   color: #ffffff;
-  flex: 1;              /* Pushes the footer down to the very bottom of the screen */
+  flex: 1;
 }
 
 .task-title {
@@ -108,7 +106,6 @@ body {
   color: #aaaaaa;
 }
 
-/* Layout wrapper inside each task line item */
 .task-item-content {
   display: flex;
   justify-content: space-between;
@@ -117,7 +114,31 @@ body {
   gap: 15px;
 }
 
-/* Status Select Badge Base Container */
+.task-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  align-items: flex-start;
+}
+
+.task-text-active {
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+.task-text-done {
+  flex: 1;
+  text-decoration: line-through;
+  opacity: 0.4;
+  transition: all 0.3s ease;
+}
+
+/* ==========================================================================
+   STATUS BADGE
+   ========================================================================== */
+
 .status-select-badge {
   padding: 6px 12px;
   border-radius: 20px;
@@ -128,25 +149,53 @@ body {
   text-align: center;
   transition: all 0.25s ease;
   display: inline-block;
-  
-  /* Overrides Tailwind Preflight to make the element fully interactive */
   appearance: select !important;
   -webkit-appearance: select !important;
   -moz-appearance: select !important;
 }
 
 .status-select-badge option {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  padding: 8px;
 }
 
-/* Hover effects for interacting with badges */
 .status-select-badge:hover {
   transform: translateY(-1px);
   filter: brightness(1.15);
 }
 
-/* Delete Action Button styling */
+.status-not-done {
+  background-color: rgba(255, 77, 77, 0.12) !important;
+  color: #ff4d4d !important;
+  border: 1px solid rgba(255, 77, 77, 0.4) !important;
+  box-shadow: 0 0 10px rgba(255, 77, 77, 0.05);
+}
+.status-not-done:focus {
+  box-shadow: 0 0 0 2px rgba(255, 77, 77, 0.4);
+}
+
+.status-in-progress {
+  background-color: rgba(245, 166, 35, 0.12) !important;
+  color: #f5a623 !important;
+  border: 1px solid rgba(245, 166, 35, 0.4) !important;
+  box-shadow: 0 0 10px rgba(245, 166, 35, 0.05);
+}
+.status-in-progress:focus {
+  box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.4);
+}
+
+.status-done {
+  background-color: rgba(0, 255, 102, 0.12) !important;
+  color: #00ff66 !important;
+  border: 1px solid rgba(0, 255, 102, 0.4) !important;
+  box-shadow: 0 0 10px rgba(0, 255, 102, 0.05);
+}
+.status-done:focus {
+  box-shadow: 0 0 0 2px rgba(0, 255, 102, 0.4);
+}
+
+/* Delete Button */
 .delete-btn {
   background: none;
   border: 1px solid #ff4d4d;
@@ -162,55 +211,11 @@ body {
   background-color: #ff4d4d;
   color: #ffffff;
 }
-/* ==========================================================================
-   🎯 DYNAMIC STATUS BADGE STATES (Add to the bottom of globals.css)
-   ========================================================================== */
-
-/* ❌ NOT DONE STATE: Vibrant Translucent Crimson Red */
-.status-not-done {
-  background-color: rgba(255, 77, 77, 0.12) !important;
-  color: #ff4d4d !important;
-  border: 1px solid rgba(255, 77, 77, 0.4) !important;
-  box-shadow: 0 0 10px rgba(255, 77, 77, 0.05);
-}
-.status-not-done:focus {
-  box-shadow: 0 0 0 2px rgba(255, 77, 77, 0.4);
-}
-
-/* ⏳ IN PROGRESS STATE: Glowy Cyber Amber Orange */
-.status-in-progress {
-  background-color: rgba(245, 166, 35, 0.12) !important;
-  color: #f5a623 !important;
-  border: 1px solid rgba(245, 166, 35, 0.4) !important;
-  box-shadow: 0 0 10px rgba(245, 166, 35, 0.05);
-}
-.status-in-progress:focus {
-  box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.4);
-}
-
-/* ✅ DONE STATE: Electric Neon Emerald Green */
-.status-done {
-  background-color: rgba(0, 255, 102, 0.12) !important;
-  color: #00ff66 !important;
-  border: 1px solid rgba(0, 255, 102, 0.4) !important;
-  box-shadow: 0 0 10px rgba(0, 255, 102, 0.05);
-}
-.status-done:focus {
-  box-shadow: 0 0 0 2px rgba(0, 255, 102, 0.4);
-}
-
-/* 🧼 BONUS: Dropdown options visual cleanup inside the picker */
-.status-select-badge option {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  padding: 8px;
-}
 
 /* ==========================================================================
-   📊 ANALYTICS AND FILTER BAR ELEMENTS
+   ANALYTICS GRID
    ========================================================================== */
 
-/* Layout frame for counter cards */
 .analytics-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -239,17 +244,25 @@ body {
   font-weight: bold;
 }
 
-/* Specific Card Labels and Card Accent Borders */
-.label-all { color: #aaaaaa; }
-.label-todo { color: #ff4d4d; }
+.label-all    { color: #aaaaaa; }
+.label-todo   { color: #ff4d4d; }
 .label-active { color: #f5a623; }
-.label-done { color: #00ff66; }
+.label-done   { color: #00ff66; }
 
-.text-todo { color: #ff4d4d; }
-.text-active { color: #f5a623; }
-.text-done { color: #00ff66; }
+.text-todo    { color: #ff4d4d; }
+.text-active  { color: #f5a623; }
+.text-done    { color: #00ff66; }
 
-/* Filter Container row */
+/* Fix: added missing border accent classes used on metric cards */
+.border-all    { border-color: #aaaaaa; }
+.border-todo   { border-color: #ff4d4d; }
+.border-active { border-color: #f5a623; }
+.border-done   { border-color: #00ff66; }
+
+/* ==========================================================================
+   FILTER BAR
+   ========================================================================== */
+
 .filter-bar {
   display: flex;
   gap: 8px;
@@ -258,7 +271,6 @@ body {
   padding-bottom: 5px;
 }
 
-/* Individual Filter navigation options buttons */
 .filter-btn {
   padding: 6px 14px;
   border-radius: 20px;
@@ -277,70 +289,34 @@ body {
   color: #ffffff;
 }
 
-/* Active Highlight state style */
 .filter-active {
   background-color: #0070f3 !important;
   color: #ffffff !important;
   border-color: #0070f3 !important;
 }
 
-/* Core task title text dynamic variables */
-.task-text-active {
-  flex: 1;
-  transition: all 0.3s ease;
-}
-
-.task-text-done {
-  flex: 1;
-  text-decoration: line-through;
-  opacity: 0.4;
-  transition: all 0.3s ease;
-}
-
 /* ==========================================================================
-   📅 CALENDAR AND DUE DATE STYLES 
-   ========================================================================== */
-
-/* Calendar block input style */
-.task-date-input {
-  padding: 12px;
-  background-color: #ffffff;
-  color: #000000;
-  border: 2px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  outline: none;
-}
-
-/* ==========================================================================
-   📅 FIXED: CALENDAR INPUT OVERRIDES FOR TAILWIND v4 DARK MODE
+   DATE & CALENDAR
    ========================================================================== */
 
 .task-date-input {
   padding: 12px;
-  background-color: #1a1a1a !important; /* Matches your dark task card theme */
-  color: #ffffff !important;            /* 🎯 FIX: Forces text to be visible in dark mode */
-  border: 1px solid #333 !important;    /* Clean, minimal borders */
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border: 1px solid #333;
   border-radius: 6px;
   font-size: 14px;
   cursor: pointer;
   outline: none;
   min-width: 150px;
-  color-scheme: dark;                  /* 🎯 FIX: Forces the browser's popup calendar menu into dark mode */
+  color-scheme: dark;
 }
 
-/* Make sure the text looks crisp and handles spacing */
-.task-text-block {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
-  min-width: 0;
-  align-items: flex-start;              /* Breaks row-centering constraints */
+.task-date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0);
 }
 
-/* Safe standard date badge text styling */
 .task-date-badge {
   font-size: 12px;
   color: #888888;
@@ -348,19 +324,14 @@ body {
   display: block;
 }
 
-/* ⚠️ Overdue critical alert text */
 .date-overdue {
   color: #ff4d4d !important;
   font-weight: bold;
-}
-.date-overdue {
-  color: #ff4d4d !important;
-  font-weight: bold;
-  animation: pulse-border 2s infinite ease-in-out;
+  animation: pulse-overdue 2s infinite ease-in-out;
 }
 
-/* Ensure the native browser calendar icon icon looks clean */
-.task-date-input::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-  filter: invert(0); /* Adjust if you want a white icon instead */
+/* Fix: added missing @keyframes for pulse animation used on overdue badges */
+@keyframes pulse-overdue {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
 }

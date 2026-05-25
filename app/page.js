@@ -1,17 +1,44 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+
+const STATUS_CLASSES = {
+  'in progress': 'status-in-progress',
+  'done': 'status-done',
+  'not done': 'status-not-done',
+};
+
+const parseDateLocal = (dateString) => {
+  if (!dateString) return null;
+  const [y, m, d] = dateString.split('-').map(Number);
+  return new Date(y, m - 1, d);
+};
+
+const formatDateDisplay = (dateString) => {
+  const date = parseDateLocal(dateString);
+  if (!date) return null;
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
+
+const isOverdue = (dateString, status) => {
+  if (!dateString || status === 'done') return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return parseDateLocal(dateString) < today;
+};
 
 export default function Home() {
   const [task, setTask] = useState('');
-  const [dueDate, setDueDate] = useState(''); // 🎯 NEW: Track selected calendar date
+  const [dueDate, setDueDate] = useState('');
   const [taskList, setTaskList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
   const [error, setError] = useState('');
+  const [deleteError, setDeleteError] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const router = useRouter();
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       const response = await fetch('/api/tasks');
       if (response.status === 401) return router.push('/auth');
@@ -20,21 +47,29 @@ export default function Home() {
         setTaskList(data);
       }
     } catch (err) {
-      console.error("Failed to fetch tasks:", err);
+      console.error('Failed to fetch tasks:', err);
+    } finally {
+      setIsFetching(false);
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     fetchTasks();
-  }, []);
-  
+  }, [fetchTasks]);
+
   const handleDelete = async (id) => {
+    setDeleteError('');
     try {
       const response = await fetch(`/api/tasks?id=${id}`, { method: 'DELETE' });
       if (response.status === 401) return router.push('/auth');
-      if (response.ok) fetchTasks();
+      if (response.ok) {
+        fetchTasks();
+      } else {
+        setDeleteError('Could not delete the task. Please try again.');
+      }
     } catch (err) {
-      console.error("Delete failed:", err);
+      console.error('Delete failed:', err);
+      setDeleteError('Could not delete the task. Please try again.');
     }
   };
 
@@ -48,7 +83,7 @@ export default function Home() {
       if (response.status === 401) return router.push('/auth');
       if (response.ok) await fetchTasks();
     } catch (err) {
-      console.error("Status update failed:", err);
+      console.error('Status update failed:', err);
     }
   };
 
@@ -60,19 +95,16 @@ export default function Home() {
     }
     setIsLoading(true);
     setError('');
-
     try {
       const response = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // 🎯 NEW: Send the dueDate string across the wire to the database
         body: JSON.stringify({ title: task.trim(), dueDate: dueDate || null }),
       });
       if (response.status === 401) return router.push('/auth');
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
-      
       setTask('');
-      setDueDate(''); // Clear the calendar input field
+      setDueDate('');
       fetchTasks();
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
@@ -81,31 +113,24 @@ export default function Home() {
     }
   };
 
-  const getStatusClassName = (status) => {
-    if (status === 'in progress') return 'status-in-progress';
-    if (status === 'done') return 'status-done';
-    return 'status-not-done';
-  };
-
-  // Helper to format dates cleanly on the card (e.g., "May 19, 2026")
-  const formatDateDisplay = (dateString) => {
-    if (!dateString) return null;
-    const options = { month: 'short', day: 'numeric', year: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-US', options);
-  };
-
-  // Helper to check if a task is overdue
-  const isOverdue = (dateString, status) => {
-    if (!dateString || status === 'done') return false;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return new Date(dateString) < today;
-  };
-
   const totalCount = taskList.length;
-  const notDoneCount = taskList.filter(t => t.status === 'not done').length;
-  const inProgressCount = taskList.filter(t => t.status === 'in progress').length;
-  const doneCount = taskList.filter(t => t.status === 'done').length;
+  const notDoneCount = taskList.filter((t) => t.status === 'not done').length;
+  const inProgressCount = taskList.filter((t) => t.status === 'in progress').length;
+  const doneCount = taskList.filter((t) => t.status === 'done').length;
+
+  const filterCounts = {
+    all: totalCount,
+    'not done': notDoneCount,
+    'in progress': inProgressCount,
+    done: doneCount,
+  };
+
+  const filterLabels = {
+    all: '🌐 All',
+    'not done': '❌ To-Do',
+    'in progress': '⏳ Active',
+    done: '✅ Completed',
+  };
 
   const filteredTasks = taskList.filter((t) => {
     if (activeFilter === 'all') return true;
@@ -115,7 +140,7 @@ export default function Home() {
   return (
     <main className="task-container">
       <h1 className="task-title" style={{ textAlign: 'center' }}>Task Manager</h1>
-      
+
       <form onSubmit={handleSubmit} className="task-form">
         <input
           type="text"
@@ -125,8 +150,7 @@ export default function Home() {
           disabled={isLoading}
           className="task-input"
         />
-        {/* 🎯 NEW: Calendar Input field inside the form layout */}
-        <input 
+        <input
           type="date"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
@@ -139,8 +163,8 @@ export default function Home() {
       </form>
 
       {error && <p className="task-error">{error}</p>}
+      {deleteError && <p className="task-error">{deleteError}</p>}
 
-      {/* Analytics Section */}
       <div className="analytics-grid">
         <div className="metric-card border-all">
           <p className="metric-label label-all">Total</p>
@@ -160,21 +184,23 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Category Navigation Bar */}
       <div className="filter-bar">
-        {['all', 'not done', 'in progress', 'done'].map((filterName) => (
+        {Object.entries(filterLabels).map(([filterName, label]) => (
           <button
             key={filterName}
             onClick={() => setActiveFilter(filterName)}
             className={`filter-btn ${activeFilter === filterName ? 'filter-active' : ''}`}
           >
-            {filterName === 'not done' ? '❌ To-Do' : filterName === 'in progress' ? '⏳ Active' : filterName === 'done' ? '✅ Completed' : '🌐 All'}
+            {label} ({filterCounts[filterName]})
           </button>
         ))}
       </div>
 
       <h2 className="task-subtitle">Your Tasks</h2>
-      {filteredTasks.length === 0 ? (
+
+      {isFetching ? (
+        <p className="task-empty">Loading tasks...</p>
+      ) : filteredTasks.length === 0 ? (
         <p className="task-empty">No tasks match this filter category.</p>
       ) : (
         <ul className="task-list">
@@ -185,26 +211,31 @@ export default function Home() {
                   <span className={t.status === 'done' ? 'task-text-done' : 'task-text-active'}>
                     {t.title}
                   </span>
-                  
-                  {/* 🎯 NEW: Dynamic Deadline Alert sub-label */}
                   {t.dueDate && (
                     <span className={`task-date-badge ${isOverdue(t.dueDate, t.status) ? 'date-overdue' : ''}`}>
-                      📅 {isOverdue(t.dueDate, t.status) ? `Overdue: ${formatDateDisplay(t.dueDate)}` : formatDateDisplay(t.dueDate)}
+                      📅 {isOverdue(t.dueDate, t.status)
+                        ? `Overdue: ${formatDateDisplay(t.dueDate)}`
+                        : formatDateDisplay(t.dueDate)}
                     </span>
                   )}
                 </div>
-                
-                <select 
-                  value={t.status} 
+
+                <select
+                  value={t.status}
                   onChange={(e) => handleStatusChange(t._id, e.target.value)}
-                  className={`status-select-badge ${getStatusClassName(t.status)}`}
+                  className={`status-select-badge ${STATUS_CLASSES[t.status] ?? 'status-not-done'}`}
+                  aria-label={`Status for "${t.title}"`}
                 >
                   <option value="not done">❌ Not Done</option>
                   <option value="in progress">⏳ In Progress</option>
                   <option value="done">✅ Done</option>
                 </select>
-                
-                <button onClick={() => handleDelete(t._id)} className="delete-btn">
+
+                <button
+                  onClick={() => handleDelete(t._id)}
+                  className="delete-btn"
+                  aria-label={`Delete "${t.title}"`}
+                >
                   Delete
                 </button>
               </div>

@@ -1,18 +1,21 @@
 // app/api/tasks/route.js
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import connectDB from "../../utils/database";
 import { Task } from "../../utils/schemaModels";
 
-async function getAuthenticatedUser(request) {
-  // Placeholder ID string so code compiles safely while testing
-  return "65f1a2cc90b56123456789ab"; 
+// Fix: reads the real session cookie instead of returning a hardcoded ID
+async function getAuthenticatedUser() {
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("session_user_id")?.value;
+  return userId || null;
 }
 
-// 1. GET - Only fetches tasks belonging to the logged-in user
-export async function GET(request) {
+// GET - fetch all tasks belonging to the logged-in user
+export async function GET() {
   try {
     await connectDB();
-    const userId = await getAuthenticatedUser(request);
+    const userId = await getAuthenticatedUser();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const tasks = await Task.find({ userId }).sort({ createdAt: -1 });
@@ -22,35 +25,33 @@ export async function GET(request) {
   }
 }
 
-// 2. POST - Assigns the active user's ID and optional Due Date directly to the new task item
+// POST - create a new task assigned to the logged-in user
 export async function POST(request) {
   try {
     await connectDB();
-    const userId = await getAuthenticatedUser(request);
+    const userId = await getAuthenticatedUser();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // 🎯 UPDATED: Pull dueDate out of the incoming request JSON bundle
     const { title, dueDate } = await request.json();
     if (!title) return NextResponse.json({ error: "Title is required" }, { status: 400 });
 
-    // 🎯 UPDATED: Inject dueDate (saves a string or null if they left it empty)
-    const newTask = await Task.create({ 
-      title, 
-      userId, 
-      dueDate: dueDate || null 
+    const newTask = await Task.create({
+      title,
+      userId,
+      dueDate: dueDate || null,
     });
-    
+
     return NextResponse.json(newTask, { status: 201 });
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
-// 3. PUT - Safeguards the update logic so users can't accidentally modify other users' data
+// PUT - update status of a task owned by the logged-in user
 export async function PUT(request) {
   try {
     await connectDB();
-    const userId = await getAuthenticatedUser(request);
+    const userId = await getAuthenticatedUser();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { id, status } = await request.json();
@@ -68,13 +69,13 @@ export async function PUT(request) {
   }
 }
 
-// 4. DELETE - Restricts deletion capabilities to the task's authentic owner
+// DELETE - remove a task owned by the logged-in user
 export async function DELETE(request) {
   try {
     await connectDB();
-    const userId = await getAuthenticatedUser(request);
+    const userId = await getAuthenticatedUser();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 

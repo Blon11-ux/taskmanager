@@ -1,11 +1,28 @@
-import mongoose from "mongoose"
+// app/utils/database.js
+import mongoose from "mongoose";
 
-const connectDB = async () => { 
-    try {
-        await mongoose.connect("mongodb+srv://251019_db_user:751108@cluster1.qnqsdev.mongodb.net/taskmanagerDatabase?appName=Cluster1")
-        console.log("connected to mongoDB");
-    } catch (error) {
-        console.log("failure to connect");
-    }
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  throw new Error("Please define MONGODB_URI in your .env.local file");
 }
-export default connectDB
+
+// Cache the connection across hot reloads in development
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+const connectDB = async () => {
+  if (cached.conn) return cached.conn;
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI).then((mongoose) => mongoose);
+  }
+
+  cached.conn = await cached.promise;
+  return cached.conn;
+};
+
+export default connectDB;
