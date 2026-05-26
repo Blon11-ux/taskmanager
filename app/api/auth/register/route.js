@@ -16,13 +16,21 @@ export async function POST(request) {
       );
     }
 
-    // Fix: enforce minimum password length before doing anything else
-    if (password.length < 6) {
-      return NextResponse.json(
-        { error: "Password must be at least 6 characters" },
-        { status: 400 }
-      );
-    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(email)) {
+         return NextResponse.json(
+          { error: "Invalid email format. Please use a valid email like name@example.com" },
+          { status: 400 }
+        )
+      }
+
+    const passwordRegex = /^(?=.*[0-9]).{8,}$/
+      if (!passwordRegex.test(password)) {
+        return NextResponse.json(
+          { error: "Password must be at least 8 characters and contain at least one number" },
+          { status: 400 }
+        )
+      }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -32,7 +40,6 @@ export async function POST(request) {
       );
     }
 
-    // Fix: hash the password before saving to MongoDB
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({ email, password: hashedPassword });
 

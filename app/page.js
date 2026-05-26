@@ -20,6 +20,14 @@ const formatDateDisplay = (dateString) => {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
+const formatTimeDisplay = (timeString) => {
+  if (!timeString) return null;
+  const [hour, minute] = timeString.split(':').map(Number);
+  const date = new Date();
+  date.setHours(hour, minute);
+  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+};
+
 const isOverdue = (dateString, status) => {
   if (!dateString || status === 'done') return false;
   const today = new Date();
@@ -30,6 +38,7 @@ const isOverdue = (dateString, status) => {
 export default function Home() {
   const [task, setTask] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [dueTime, setDueTime] = useState('');
   const [taskList, setTaskList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
@@ -99,12 +108,13 @@ export default function Home() {
       const response = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: task.trim(), dueDate: dueDate || null }),
+        body: JSON.stringify({ title: task.trim(), dueDate: dueDate || null, dueTime: dueTime || null }),
       });
       if (response.status === 401) return router.push('/auth');
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
       setTask('');
       setDueDate('');
+      setDueTime('');
       fetchTasks();
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
@@ -154,6 +164,13 @@ export default function Home() {
           type="date"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
+          disabled={isLoading}
+          className="task-date-input"
+        />
+        <input
+          type="time"
+          value={dueTime}
+          onChange={(e) => setDueTime(e.target.value)}
           disabled={isLoading}
           className="task-date-input"
         />
@@ -216,6 +233,7 @@ export default function Home() {
                       📅 {isOverdue(t.dueDate, t.status)
                         ? `Overdue: ${formatDateDisplay(t.dueDate)}`
                         : formatDateDisplay(t.dueDate)}
+                      {t.dueTime && ` ⏰ ${formatTimeDisplay(t.dueTime)}`}
                     </span>
                   )}
                 </div>

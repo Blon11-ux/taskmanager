@@ -26,3 +26,31 @@
 ├── components/     # 再利用可能なUIコンポーネント (TaskCard, Sidebar など)
 ├── context/        # グローバルな状態管理ロジック
 └── app/            # Next.js のページおよびレイアウト設定
+
+
+## Email creatiion
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+if (!emailRegex.test(email)) {
+    return NextResponse.json(
+        { error: "Invalid email format" },
+        { status: 400 }
+    )
+}
+This ensures the email must contain:
+
+Characters before @
+An @ symbol
+Characters after @
+A . followed by more characters (like .com, .jp)
+
+So test@gmail.com ✅ and abc or 1@1 ❌
+
+## Password creation
+// Minimum 8 characters, at least one number
+const passwordRegex = /^(?=.*[0-9]).{8,}$/
+if (!passwordRegex.test(password)) {
+    return NextResponse.json(
+        { error: "Password must be at least 8 characters and contain a number" },
+        { status: 400 }
+    )
+}

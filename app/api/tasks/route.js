@@ -1,17 +1,14 @@
-// app/api/tasks/route.js
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import connectDB from "../../utils/database";
 import { Task } from "../../utils/schemaModels";
 
-// Fix: reads the real session cookie instead of returning a hardcoded ID
 async function getAuthenticatedUser() {
   const cookieStore = await cookies();
   const userId = cookieStore.get("session_user_id")?.value;
   return userId || null;
 }
 
-// GET - fetch all tasks belonging to the logged-in user
 export async function GET() {
   try {
     await connectDB();
@@ -25,20 +22,20 @@ export async function GET() {
   }
 }
 
-// POST - create a new task assigned to the logged-in user
 export async function POST(request) {
   try {
     await connectDB();
     const userId = await getAuthenticatedUser();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { title, dueDate } = await request.json();
+    const { title, dueDate, dueTime } = await request.json();
     if (!title) return NextResponse.json({ error: "Title is required" }, { status: 400 });
 
     const newTask = await Task.create({
       title,
       userId,
       dueDate: dueDate || null,
+      dueTime: dueTime || null,
     });
 
     return NextResponse.json(newTask, { status: 201 });
@@ -47,7 +44,6 @@ export async function POST(request) {
   }
 }
 
-// PUT - update status of a task owned by the logged-in user
 export async function PUT(request) {
   try {
     await connectDB();
@@ -69,7 +65,6 @@ export async function PUT(request) {
   }
 }
 
-// DELETE - remove a task owned by the logged-in user
 export async function DELETE(request) {
   try {
     await connectDB();

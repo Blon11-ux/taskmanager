@@ -20,6 +20,7 @@ const TaskSchema = new mongoose.Schema(
       required: true,
     },
     dueDate: { type: String, default: null },
+    dueTime: { type: String, default: null },
   },
   { timestamps: true }
 );
