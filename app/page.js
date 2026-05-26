@@ -45,6 +45,10 @@ export default function Home() {
   const [error, setError] = useState('');
   const [deleteError, setDeleteError] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [editingId, setEditingId] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDate, setEditDate] = useState('');
+  const [editTime, setEditTime] = useState('');
   const router = useRouter();
 
   const fetchTasks = useCallback(async () => {
@@ -66,8 +70,51 @@ export default function Home() {
     fetchTasks();
   }, [fetchTasks]);
 
+  useEffect(() => {
+    const pendingCount = taskList.filter(t => t.status !== 'done').length;
+    if (pendingCount > 0) {
+      document.title = `(${pendingCount}) My Task Manager`;
+    } else {
+      document.title = 'My Task Manager';
+    }
+  }, [taskList]);
+
+  const handleEdit = (t) => {
+    setEditingId(t._id);
+    setEditTitle(t.title);
+    setEditDate(t.dueDate || '');
+    setEditTime(t.dueTime || '');
+  };
+
+  const handleEditSave = async (id) => {
+    if (!editTitle.trim()) return;
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, title: editTitle.trim(), dueDate: editDate || null, dueTime: editTime || null }),
+      });
+      if (response.status === 401) return router.push('/auth');
+      if (response.ok) {
+        setEditingId(null);
+        fetchTasks();
+      }
+    } catch (err) {
+      console.error('Edit failed:', err);
+    }
+  };
+
+  const handleEditCancel = () => {
+    setEditingId(null);
+    setEditTitle('');
+    setEditDate('');
+    setEditTime('');
+  };
+
   const handleDelete = async (id) => {
     setDeleteError('');
+    const confirmed = window.confirm('Are you sure you want to delete this task?');
+    if (!confirmed) return;
     try {
       const response = await fetch(`/api/tasks?id=${id}`, { method: 'DELETE' });
       if (response.status === 401) return router.push('/auth');
@@ -224,38 +271,75 @@ export default function Home() {
           {filteredTasks.map((t) => (
             <li key={t._id} className="task-item">
               <div className="task-item-content">
-                <div className="task-text-block">
-                  <span className={t.status === 'done' ? 'task-text-done' : 'task-text-active'}>
-                    {t.title}
-                  </span>
-                  {t.dueDate && (
-                    <span className={`task-date-badge ${isOverdue(t.dueDate, t.status) ? 'date-overdue' : ''}`}>
-                      📅 {isOverdue(t.dueDate, t.status)
-                        ? `Overdue: ${formatDateDisplay(t.dueDate)}`
-                        : formatDateDisplay(t.dueDate)}
-                      {t.dueTime && ` ⏰ ${formatTimeDisplay(t.dueTime)}`}
+                {editingId === t._id ? (
+                  <div className="task-text-block">
+                    <input
+                      type="text"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      className="task-input"
+                    />
+                    <input
+                      type="date"
+                      value={editDate}
+                      onChange={(e) => setEditDate(e.target.value)}
+                      className="task-date-input"
+                    />
+                    <input
+                      type="time"
+                      value={editTime}
+                      onChange={(e) => setEditTime(e.target.value)}
+                      className="task-date-input"
+                    />
+                    <button onClick={() => handleEditSave(t._id)} className="task-button">Save</button>
+                    <button onClick={handleEditCancel} className="delete-btn">Cancel</button>
+                  </div>
+                ) : (
+                  <div className="task-text-block">
+                    <span className={t.status === 'done' ? 'task-text-done' : 'task-text-active'}>
+                      {t.title}
                     </span>
-                  )}
-                </div>
+                    {t.dueDate && (
+                      <span className={`task-date-badge ${isOverdue(t.dueDate, t.status) ? 'date-overdue' : ''}`}>
+                        📅 {isOverdue(t.dueDate, t.status)
+                          ? `Overdue: ${formatDateDisplay(t.dueDate)}`
+                          : formatDateDisplay(t.dueDate)}
+                        {t.dueTime && ` ⏰ ${formatTimeDisplay(t.dueTime)}`}
+                      </span>
+                    )}
+                  </div>
+                )}
 
-                <select
-                  value={t.status}
-                  onChange={(e) => handleStatusChange(t._id, e.target.value)}
-                  className={`status-select-badge ${STATUS_CLASSES[t.status] ?? 'status-not-done'}`}
-                  aria-label={`Status for "${t.title}"`}
-                >
-                  <option value="not done">❌ Not Done</option>
-                  <option value="in progress">⏳ In Progress</option>
-                  <option value="done">✅ Done</option>
-                </select>
+                {editingId !== t._id && (
+                  <>
+                    <select
+                      value={t.status}
+                      onChange={(e) => handleStatusChange(t._id, e.target.value)}
+                      className={`status-select-badge ${STATUS_CLASSES[t.status] ?? 'status-not-done'}`}
+                      aria-label={`Status for "${t.title}"`}
+                    >
+                      <option value="not done">❌ Not Done</option>
+                      <option value="in progress">⏳ In Progress</option>
+                      <option value="done">✅ Done</option>
+                    </select>
 
-                <button
-                  onClick={() => handleDelete(t._id)}
-                  className="delete-btn"
-                  aria-label={`Delete "${t.title}"`}
-                >
-                  Delete
-                </button>
+                    <button
+                      onClick={() => handleEdit(t)}
+                      className="edit-btn"
+                      aria-label={`Edit "${t.title}"`}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(t._id)}
+                      className="delete-btn"
+                      aria-label={`Delete "${t.title}"`}
+                    >
+                      Delete
+                    </button>
+                  </>
+                )}
               </div>
             </li>
           ))}

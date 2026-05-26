@@ -15,7 +15,7 @@ export async function GET() {
     const userId = await getAuthenticatedUser();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const tasks = await Task.find({ userId }).sort({ createdAt: -1 });
+    const tasks = await Task.find({ userId }).sort({ dueDate: 1, dueTime: 1 });
     return NextResponse.json(tasks, { status: 200 });
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });
@@ -50,11 +50,17 @@ export async function PUT(request) {
     const userId = await getAuthenticatedUser();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { id, status } = await request.json();
+    const { id, status, title, dueDate, dueTime } = await request.json();
+
+    const updateFields = {};
+    if (status) updateFields.status = status;
+    if (title) updateFields.title = title;
+    if (dueDate !== undefined) updateFields.dueDate = dueDate;
+    if (dueTime !== undefined) updateFields.dueTime = dueTime;
 
     const updatedTask = await Task.findOneAndUpdate(
       { _id: id, userId },
-      { status },
+      updateFields,
       { new: true, runValidators: true }
     );
 
